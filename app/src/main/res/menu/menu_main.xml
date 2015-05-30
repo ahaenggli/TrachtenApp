@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:label="@string/app_titel"
+    tools:context=".MainActivity">
+
+
+<item android:id="@+id/benachrichtigung"
+    android:checkable="true"
+    android:title="Erhalte Benachrichtigungen" />
+
+
+    <item android:id="@+id/ton"
+        android:checkable="true"
+        android:visible="true"
+        android:title="Ton" />
+
+    <item android:id="@+id/vibration"
+        android:checkable="true"
+        android:visible="true"
+        android:title="Vibration" />
+
+    <item android:id="@+id/licht"
+        android:checkable="true"
+        android:visible="true"
+        android:title="Licht/LED" />
+
+</menu>
