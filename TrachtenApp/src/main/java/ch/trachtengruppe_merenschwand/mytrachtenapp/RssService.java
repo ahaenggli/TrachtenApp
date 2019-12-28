@@ -1,11 +1,15 @@
 package ch.trachtengruppe_merenschwand.mytrachtenapp;
+
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -19,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * Created by ahaen on 31.03.2015.
@@ -34,6 +40,7 @@ public class RssService extends Service {
 
     private Handler mHandler;
 
+    private String CHANNEL_ID = "TrachtenChannel";
 /*
     public static int randInt(int min, int max) {
     Random rand = new Random();
@@ -41,6 +48,24 @@ public class RssService extends Service {
         return randomNum;
     }
 */
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getBaseContext().getString(R.string.app_name);
+            String description = getBaseContext().getString(R.string.app_name);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
     private final Runnable mRunnable = new Runnable() {
 
         @Override
@@ -49,6 +74,7 @@ public class RssService extends Service {
                     //RSS Daten lesen
                     List<RssItem> rssItems;
                     try {
+                        Log.d("RssService", "Start");
                         RssParser parser = new RssParser();
                         //InputStream sss = getInputStream(RSS_LINK);
                         rssItems = parser.parse(getInputStream(RSS_LINK));
@@ -69,6 +95,8 @@ public class RssService extends Service {
 
                         if(!Benachrichtigung) getBaseContext().stopService(new Intent( getBaseContext(), RssService.class));
 
+
+                        Log.i("RssService", "Benachrichtigung: " + Benachrichtigung);
                         String dateStr = null;
 
                         if(rssItems.get(1).getLastBuildDate()!=null) dateStr = rssItems.get(1).getLastBuildDate();
@@ -82,7 +110,7 @@ public class RssService extends Service {
                             try {
                                 fromDate = fromFormat.parse(dateStr); //pubDate[i] is your date (node value)
                             } catch (Exception e) {
-                                Log.e("Error:", "Datumskonvertierung nicht möglich");
+                                Log.e("RssService", "Error: Datumskonvertierung nicht möglich");
                                 e.printStackTrace();
                             }
                         }
@@ -92,7 +120,8 @@ public class RssService extends Service {
                         else LastPub = LastDate;
 
                         //Debug: führt dazu, dass bei jedem Timer onRun eine Notifcation kommt
-                        //if(Debug) LastDate = LastPub  -1;
+                        //if(Debug)
+                        LastDate = LastPub  -1;
 
                         if (LastDate < LastPub) {
 
@@ -100,47 +129,71 @@ public class RssService extends Service {
                             intenty.putExtra("OpenLink", rssItems.get(1).getLink());
                             PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(),  new Random().nextInt(), intenty, 0);
 
-                            //Log.i("OpenLink:", rssItems.get(1).getLink());
+                            Log.i("RssService", "OpenLink: " + rssItems.get(1).getLink());
 
                             //Notification machen
-                            Notification.Builder noti = new  Notification.Builder(
-                                    getBaseContext())
-                                    .setContentTitle(rssItems.get(1).getTitle())
-                                    .setContentText(android.text.Html.fromHtml(rssItems.get(1).getDescription()))
-                                    //.setContentInfo("Info")
-                                    //.setNumber(99)
+                            NotificationManager mNotificationManager;
+                            Context mContext = getBaseContext();
+                            NotificationCompat.Builder mBuilder =
+                                    new NotificationCompat.Builder(mContext.getApplicationContext(), CHANNEL_ID);
 
-                                    .setVisibility(Notification.VISIBILITY_PUBLIC)
-                                    .setSmallIcon(R.mipmap.tg_logo)
-                                    .setContentIntent(pendingIntent)
-                                    .setWhen(LastPub)
-                                    .setShowWhen(true)
-                                    .setColor(Color.WHITE)
-                                    .setAutoCancel(true);
+                            NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+                            bigText.bigText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
+                            bigText.setBigContentTitle(rssItems.get(1).getTitle());
+                            //bigText.setSummaryText("Text im Detail");
 
-                            if (Ton) noti.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);//noti.setDefaults(NotificationCompat.DEFAULT_SOUND);
-                            if (Vibration) noti.setVibrate(new long[] { 500, 500});//noti.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
-                            if (Licht) noti.setLights(Color.WHITE, 2500, 2500);
+                            mBuilder.setSmallIcon(R.drawable.tg_logo_notification);
+                            mBuilder.setContentTitle(rssItems.get(1).getTitle());
+                            mBuilder.setContentText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
+                            mBuilder.setContentIntent(pendingIntent);
 
-                            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                            //Zeige Notification endlich an
-                            notificationManager.notify( new Random().nextInt(), noti.build());
+                            // evtl max
+                            mBuilder.setPriority(Notification.PRIORITY_DEFAULT);
+                            // evtl weglassen
+                            mBuilder.setStyle(bigText);
+                            // optional?
+                            mBuilder.setWhen(LastPub);
+                            mBuilder.setShowWhen(true);
+                            mBuilder.setColor(Color.WHITE);
+                            mBuilder.setAutoCancel(true);
+
+                            if (Ton) mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);//noti.setDefaults(NotificationCompat.DEFAULT_SOUND);
+                            if (Vibration) mBuilder.setVibrate(new long[] { 500, 500});//noti.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
+                            if (Licht) mBuilder.setLights(Color.WHITE, 2500, 2500);
+
+
+                            mNotificationManager =
+                                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                            {
+                                NotificationChannel channel = new NotificationChannel(
+                                        CHANNEL_ID,
+                                        CHANNEL_ID,
+                                        NotificationManager.IMPORTANCE_DEFAULT);
+                                mNotificationManager.createNotificationChannel(channel);
+                                mBuilder.setChannelId(CHANNEL_ID);
+                            }
+
+                            mNotificationManager.notify(0, mBuilder.build());
+                            Log.i("RssService", "Notify gemacht");
+
+
                             LastDate = LastPub;
-//                    if(Debug) Log.i("Notify", "gemacht");
-
                             SharedPreferences.Editor editor = Objects.requireNonNull(settings).edit();
                             editor.putLong(getString(R.string.app_settings_lastdate), LastDate);
                             editor.apply();
                         }
 
                     } catch(Exception e) {
-                        e.printStackTrace();
+                        Log.e("RssService:",  e.getStackTrace().toString());
+
                     } finally {
                         mHandler.postDelayed(() -> new Thread(mRunnable).start(), 60000);
                     }
 
 
-            //if(Debug) Log.w("RSS-Read", "Fertig");
+            Log.d("RssService", "Ende");
         }
     };
 
@@ -172,7 +225,7 @@ public class RssService extends Service {
         // delay for 15 sec.
         int delay = 15 * 1000;
         // repeat every 3600 sec.
-        int period = 3600 * 1000;
+        int period = 15 * 1000;
         mHandler.postDelayed(() -> new Thread(mRunnable).start(), period + delay);
 
 

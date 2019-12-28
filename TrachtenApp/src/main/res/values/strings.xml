@@ -6,7 +6,7 @@
     <string name="app_Startseite">https://www.trachtengruppe-merenschwand.ch/</string>
     <string name="app_OpenLinkInApp">trachtengruppe-merenschwand.ch</string>
 
-    <string name="app_rss">https://www.trachtengruppe-merenschwand.ch/rss.php</string>
+    <string name="app_rss">https://www.trachtengruppe-merenschwand.ch/feed/</string>
 
     <string name="app_settings">ch.trachtengruppe_merenschwand.mytrachtenapp.Settings</string>
     <string name="app_settings_benachrichtigung">app_setting_pushi</string>
