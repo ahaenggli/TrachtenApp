@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebChromeClient;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean Licht;
 
 
+    
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -77,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String OpenMe = getString(R.string.app_Startseite);
+
+        // Optional: Lese Daten bei öffnen durch Push-Nachricht
+        if(getIntent().getExtras() != null && getIntent().getExtras().getString("OpenLink") != null) {
+            OpenMe = getIntent().getExtras().getString("OpenLink");
+        }
 
         if (Objects.requireNonNull(OpenMe).toLowerCase().contains(getString(R.string.app_OpenLinkInApp)))
             mWebView.loadUrl(OpenMe);
