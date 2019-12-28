@@ -3,9 +3,8 @@ package ch.trachtengruppe_merenschwand.mytrachtenapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+//import android.support.v4.widget.DrawerLayout;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,10 +12,12 @@ import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class MainActivity extends ActionBarActivity {
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
 
@@ -28,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
     private boolean Licht;
 
     private String[] mPlanetTitles;
-    private DrawerLayout mDrawerLayout;
+    //private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
 
