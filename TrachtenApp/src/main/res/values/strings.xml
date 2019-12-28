@@ -3,17 +3,21 @@
     <string name="app_titel">Trachtengruppe Merenschwand</string>
 
     <string name="app_UserAgent">#TrachtenApp#V1.0#</string>
-    <string name="app_Startseite">http://www.trachtengruppe-merenschwand.ch/</string>
+    <string name="app_Startseite">https://www.trachtengruppe-merenschwand.ch/</string>
     <string name="app_OpenLinkInApp">trachtengruppe-merenschwand.ch</string>
 
-    <string name="app_rss">http://www.trachtengruppe-merenschwand.ch/rss.php</string>
+    <string name="app_rss">https://www.trachtengruppe-merenschwand.ch/rss.php</string>
 
     <string name="app_settings">ch.trachtengruppe_merenschwand.mytrachtenapp.Settings</string>
     <string name="app_settings_benachrichtigung">app_setting_pushi</string>
     <string name="app_settings_ton">app_setting_ton</string>
     <string name="app_settings_vibration">app_setting_vibration</string>
     <string name="app_settings_licht">app_setting_licht</string>
-    <string name="app_settings_cache">app_setting_cache</string>
     <string name="app_settings_lastdate">app_setting_lastdate</string>
+
+    <string name="app_settingsLabel_benachrichtigung">Erhalte Benachrichtigungen</string>
+    <string name="app_settingsLabel_ton">Ton</string>
+    <string name="app_settingsLabel_vibration">Vibration</string>
+    <string name="app_settingsLabel_licht">Licht/LED</string>
 
 </resources>

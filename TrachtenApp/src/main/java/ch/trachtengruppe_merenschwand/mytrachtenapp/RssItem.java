@@ -3,7 +3,7 @@ package ch.trachtengruppe_merenschwand.mytrachtenapp;
 /**
  * Created by ahaen on 31.03.2015.
  */
-public class RssItem {
+class RssItem {
 
     private final String title;
     private final String link;

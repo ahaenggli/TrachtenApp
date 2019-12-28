@@ -12,10 +12,7 @@ import java.util.List;
 /**
  * Created by ahaen on 31.03.2015.
  */
-public class RssParser {
-
-    // We don't use namespaces
-    private final String ns = null;
+class RssParser {
 
     public List<RssItem> parse(InputStream inputStream) throws XmlPullParserException, IOException {
         try {
@@ -38,26 +35,32 @@ public class RssParser {
         String lastBuildDate = null;
         String pubDate = null;
 
-        List<RssItem> items = new ArrayList<RssItem>();
+        List<RssItem> items = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
 
-            if (name.equals("title")) {
-                title = readElement(parser, "title");
-            } else if (name.equals("link")) {
-                link = readElement(parser, "link");
-            }else if (name.equals("description")) {
-                description = readElement(parser, "description");
-            }else if (name.equals("pubDate")) {
-                pubDate = readElement(parser, "pubDate");
-               // Log.w("::pubDate::", pubDate);
-            }else if (name.equals("lastBuildDate")) {
-                lastBuildDate = readElement(parser, "lastBuildDate");
-              //  Log.w("::lastBuildDate::", lastBuildDate);
-            }//else  Log.w("::Name::", name);
+            switch (name) {
+                case "title":
+                    title = readElement(parser, "title");
+                    break;
+                case "link":
+                    link = readElement(parser, "link");
+                    break;
+                case "description":
+                    description = readElement(parser, "description");
+                    break;
+                case "pubDate":
+                    pubDate = readElement(parser, "pubDate");
+                    // Log.w("::pubDate::", pubDate);
+                    break;
+                case "lastBuildDate":
+                    lastBuildDate = readElement(parser, "lastBuildDate");
+                    //  Log.w("::lastBuildDate::", lastBuildDate);
+                    break;
+            }
 
             if (name.equals("item")){//(title != null && link != null && description!= null){// || lastBuildDate!= null || pubDate!= null) {
                 RssItem item = new RssItem(title, link, description, lastBuildDate, pubDate);
@@ -73,19 +76,14 @@ public class RssParser {
         if (title != null || link != null || description!= null || lastBuildDate!= null || pubDate!= null) {
             RssItem item = new RssItem(title, link, description, lastBuildDate, pubDate);
             items.add(item);
-            title = null;
-            link = null;
-            description = null;
-            lastBuildDate = null;
-            pubDate = null;
         }
         return items;
     }
 
     private String readElement(XmlPullParser parser, String Element) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, Element);
+        parser.require(XmlPullParser.START_TAG, null, Element);
         String description = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, Element);
+        parser.require(XmlPullParser.END_TAG, null, Element);
         return description;
     }
 

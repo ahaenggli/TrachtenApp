@@ -1,5 +1,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:label="@string/app_titel"
     tools:context=".MainActivity">
@@ -7,22 +6,22 @@
 
 <item android:id="@+id/benachrichtigung"
     android:checkable="true"
-    android:title="Erhalte Benachrichtigungen" />
+    android:title="@string/app_settingsLabel_benachrichtigung" />
 
 
     <item android:id="@+id/ton"
         android:checkable="true"
         android:visible="true"
-        android:title="Ton" />
+        android:title="@string/app_settingsLabel_ton" />
 
     <item android:id="@+id/vibration"
         android:checkable="true"
         android:visible="true"
-        android:title="Vibration" />
+        android:title="@string/app_settingsLabel_vibration" />
 
     <item android:id="@+id/licht"
         android:checkable="true"
         android:visible="true"
-        android:title="Licht/LED" />
+        android:title="@string/app_settingsLabel_licht" />
 
 </menu>
