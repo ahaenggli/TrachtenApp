@@ -3,7 +3,6 @@ package ch.trachtengruppe_merenschwand.mytrachtenapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mWebView  = findViewById(R.id.webView);
+        mWebView = findViewById(R.id.webView);
         mWebView.clearCache(true);
 
         // Enable Javascript
@@ -38,32 +37,31 @@ public class MainActivity extends AppCompatActivity {
 
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (url.toLowerCase().contains(getString(R.string.app_OpenLinkInApp))) {
-                        view.loadUrl(url);
-                    }
-                    else {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                    }
-                    return true;
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.toLowerCase().contains(getString(R.string.app_OpenLinkInApp))) {
+                    view.loadUrl(url);
+                } else {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 }
+                return true;
+            }
 
 
         });
 
         ActionBar myBar = getSupportActionBar();
-        Objects.requireNonNull(myBar).setTitle(getString(R.string.app_name));
-        myBar.setSubtitle(getString((R.string.app_titel)));
+        Objects.requireNonNull(myBar).setTitle(getString((R.string.app_titel)));
+        //myBar.setSubtitle(getString(R.string.app_name));
 
     }
+
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
         SharedPreferences settings = getSharedPreferences(getString(R.string.app_settings), MODE_PRIVATE);
 
-        if(settings != null)
-        {
+        if (settings != null) {
             Benachrichtigung = settings.getBoolean(getString(R.string.app_settings_benachrichtigung), true);
             RssServiceHandler();
         }
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         String OpenMe = getString(R.string.app_Startseite);
 
         // Optional: Lese Daten bei öffnen durch Push-Nachricht
-        if(getIntent().getExtras() != null && getIntent().getExtras().getString("OpenLink") != null) {
+        if (getIntent().getExtras() != null && getIntent().getExtras().getString("OpenLink") != null) {
             OpenMe = getIntent().getExtras().getString("OpenLink");
         }
 
@@ -84,13 +82,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void RssServiceHandler()
-    {
-        if(Benachrichtigung){
+    private void RssServiceHandler() {
+        if (Benachrichtigung) {
             this.stopService(new Intent(this, RssService.class));
             this.startService(new Intent(this, RssService.class));
-        }
-        else this.stopService(new Intent(this, RssService.class));
+        } else this.stopService(new Intent(this, RssService.class));
     }
 
     @Override
@@ -100,22 +96,18 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
 
 
-        switch (item.getItemId()) {
-            case R.id.benachrichtigung:
-                item.setChecked(!item.isChecked());
-                Benachrichtigung = item.isChecked();
-                editor.putBoolean(getString(R.string.app_settings_benachrichtigung), Benachrichtigung);
-                editor.apply();
-                RssServiceHandler();
-            break;
-
-
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.benachrichtigung) {
+            item.setChecked(!item.isChecked());
+            Benachrichtigung = item.isChecked();
+            editor.putBoolean(getString(R.string.app_settings_benachrichtigung), Benachrichtigung);
+            editor.apply();
+            RssServiceHandler();
+        } else {
+            return super.onOptionsItemSelected(item);
         }
         return true;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -129,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onNewIntent(Intent intent){
+    public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
     }

@@ -4,6 +4,7 @@ import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ class RssParser {
                     break;
             }
 
-            if (name.equals("item")){//(title != null && link != null && description!= null){// || lastBuildDate!= null || pubDate!= null) {
+            if (name.equals("item")) {//(title != null && link != null && description!= null){// || lastBuildDate!= null || pubDate!= null) {
                 RssItem item = new RssItem(title, link, description, lastBuildDate, pubDate);
                 items.add(item);
                 title = null;
@@ -73,7 +74,7 @@ class RssParser {
             }
         }
 
-        if (title != null || link != null || description!= null || lastBuildDate!= null || pubDate!= null) {
+        if (title != null || link != null || description != null || lastBuildDate != null || pubDate != null) {
             RssItem item = new RssItem(title, link, description, lastBuildDate, pubDate);
             items.add(item);
         }

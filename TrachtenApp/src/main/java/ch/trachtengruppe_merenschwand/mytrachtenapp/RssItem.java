@@ -31,8 +31,13 @@ class RssItem {
         return description;
     }
 
-    public String getLastBuildDate() {return  lastBuildDate;}
-    public String getPubDate() {return  pubDate;}
+    public String getLastBuildDate() {
+        return lastBuildDate;
+    }
+
+    public String getPubDate() {
+        return pubDate;
+    }
 
 
 }

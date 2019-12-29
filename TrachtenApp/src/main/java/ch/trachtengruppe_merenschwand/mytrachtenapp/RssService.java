@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -35,7 +36,7 @@ public class RssService extends Service {
     private boolean Benachrichtigung = false;
     private Handler mHandler;
 
-    private String CHANNEL_ID = "TrachtenChannel";
+    private final String CHANNEL_ID = "TrachtenChannel";
 /*
     public static int randInt(int min, int max) {
     Random rand = new Random();
@@ -49,154 +50,154 @@ public class RssService extends Service {
         @Override
         public void run() {
 
-                    //RSS Daten lesen
-                    List<RssItem> rssItems;
+            //RSS Daten lesen
+            List<RssItem> rssItems;
+            try {
+                //Log.d("RssService", "Start");
+                RssParser parser = new RssParser();
+                //InputStream sss = getInputStream(RSS_LINK);
+                rssItems = parser.parse(getInputStream(RSS_LINK));
+
+
+                SharedPreferences settings;
+                settings = getBaseContext().getSharedPreferences(getBaseContext().getString(R.string.app_settings), getBaseContext().MODE_PRIVATE);
+
+                LastDate = System.currentTimeMillis();
+                if (settings != null) {
+                    Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
+                    LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
+                }
+
+                if (!Benachrichtigung)
+                    getBaseContext().stopService(new Intent(getBaseContext(), RssService.class));
+
+
+                //Log.i("RssService", "Benachrichtigung: " + Benachrichtigung);
+                String dateStr = null;
+
+                if (rssItems.get(1).getLastBuildDate() != null)
+                    dateStr = rssItems.get(1).getLastBuildDate();
+                if (rssItems.get(1).getPubDate() != null) dateStr = rssItems.get(1).getPubDate();
+
+
+                Date fromDate = null;
+
+                if (dateStr != null) {
+                    SimpleDateFormat fromFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z", Locale.US);
                     try {
-                        Log.d("RssService", "Start");
-                        RssParser parser = new RssParser();
-                        //InputStream sss = getInputStream(RSS_LINK);
-                        rssItems = parser.parse(getInputStream(RSS_LINK));
+                        fromDate = fromFormat.parse(dateStr); //pubDate[i] is your date (node value)
+                    } catch (Exception e) {
+                        Log.e("RssService", "Error: Datumskonvertierung nicht möglich");
+                        e.printStackTrace();
+                    }
+                }
+
+                Long LastPub;
+                if (fromDate != null) LastPub = fromDate.getTime();
+                else LastPub = LastDate;
+
+                //Debug: führt dazu, dass bei jedem Timer onRun eine Notifcation kommt
+                //LastDate = LastPub - 1;
+
+                if (LastDate < LastPub) {
+
+                    Intent intenty = new Intent(getBaseContext(), MainActivity.class);
+                    intenty.putExtra("OpenLink", rssItems.get(1).getLink());
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), new Random().nextInt(), intenty, 0);
+
+                    //Log.i("RssService", "OpenLink: " + rssItems.get(1).getLink());
+
+                    //Notification machen
+                    NotificationManager mNotificationManager;
+                    Context mContext = getBaseContext();
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(mContext.getApplicationContext(), CHANNEL_ID);
+
+                    NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+                    bigText.bigText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
+                    bigText.setBigContentTitle(rssItems.get(1).getTitle());
+                    //bigText.setSummaryText("Text im Detail");
+
+                    mBuilder.setSmallIcon(R.drawable.tg_logo_notification);
+                    mBuilder.setContentTitle(rssItems.get(1).getTitle());
+                    mBuilder.setContentText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
+                    mBuilder.setContentIntent(pendingIntent);
 
 
-                        SharedPreferences settings;
-                        settings =  getBaseContext().getSharedPreferences( getBaseContext().getString(R.string.app_settings),  getBaseContext().MODE_PRIVATE);
+                    mBuilder.setPriority(Notification.PRIORITY_DEFAULT);
 
-                        LastDate = System.currentTimeMillis();
-                        if(settings != null)
-                        {
-                            Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
-                            LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
-                        }
-
-                        if(!Benachrichtigung) getBaseContext().stopService(new Intent( getBaseContext(), RssService.class));
+                    mBuilder.setStyle(bigText);
 
 
-                        Log.i("RssService", "Benachrichtigung: " + Benachrichtigung);
-                        String dateStr = null;
+                    mBuilder.setWhen(LastPub);
+                    mBuilder.setShowWhen(true);
+                    mBuilder.setColor(Color.WHITE);
+                    mBuilder.setAutoCancel(true);
 
-                        if(rssItems.get(1).getLastBuildDate()!=null) dateStr = rssItems.get(1).getLastBuildDate();
-                        if(rssItems.get(1).getPubDate()!=null) dateStr = rssItems.get(1).getPubDate();
+                    mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        // Anzahl in App-Badge anzeigen
+                        // mBuilder.setNumber(1);
 
-                        Date fromDate = null;
-
-                        if(dateStr!=null) {
-                            SimpleDateFormat fromFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z", Locale.US);
-                            try {
-                                fromDate = fromFormat.parse(dateStr); //pubDate[i] is your date (node value)
-                            } catch (Exception e) {
-                                Log.e("RssService", "Error: Datumskonvertierung nicht möglich");
-                                e.printStackTrace();
-                            }
-                        }
-
-                        Long LastPub;
-                        if(fromDate!=null) LastPub = fromDate.getTime();
-                        else LastPub = LastDate;
-
-                        //Debug: führt dazu, dass bei jedem Timer onRun eine Notifcation kommt
-                        //if(Debug) LastDate = LastPub  -1;
-
-                        if (LastDate < LastPub) {
-
-                            Intent intenty = new Intent(getBaseContext(), MainActivity.class);
-                            intenty.putExtra("OpenLink", rssItems.get(1).getLink());
-                            PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(),  new Random().nextInt(), intenty, 0);
-
-                            Log.i("RssService", "OpenLink: " + rssItems.get(1).getLink());
-
-                            //Notification machen
-                            NotificationManager mNotificationManager;
-                            Context mContext = getBaseContext();
-                            NotificationCompat.Builder mBuilder =
-                                    new NotificationCompat.Builder(mContext.getApplicationContext(), CHANNEL_ID);
-
-                            NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-                            bigText.bigText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
-                            bigText.setBigContentTitle(rssItems.get(1).getTitle());
-                            //bigText.setSummaryText("Text im Detail");
-
-                            mBuilder.setSmallIcon(R.drawable.tg_logo_notification);
-                            mBuilder.setContentTitle(rssItems.get(1).getTitle());
-                            mBuilder.setContentText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
-                            mBuilder.setContentIntent(pendingIntent);
-
-
-                            mBuilder.setPriority(Notification.PRIORITY_DEFAULT);
-
-                            mBuilder.setStyle(bigText);
-
-
-                            mBuilder.setWhen(LastPub);
-                            mBuilder.setShowWhen(true);
-                            mBuilder.setColor(Color.WHITE);
-                            mBuilder.setAutoCancel(true);
-
-                            mNotificationManager =
-                                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            {
-                                // Anzahl in App-Badge anzeigen
-                                // mBuilder.setNumber(1);
-
-                                // Channel aufbauen
-                                NotificationChannel channel = new NotificationChannel(
-                                        CHANNEL_ID,
-                                        CHANNEL_ID,
-                                        NotificationManager.IMPORTANCE_LOW);
-                                mNotificationManager.createNotificationChannel(channel);
-                                mBuilder.setChannelId(CHANNEL_ID);
-                            }
-
-                            mNotificationManager.notify(0, mBuilder.build());
-                            Log.i("RssService", "Notify gemacht");
-
-
-                            LastDate = LastPub;
-                            SharedPreferences.Editor editor = Objects.requireNonNull(settings).edit();
-                            editor.putLong(getString(R.string.app_settings_lastdate), LastDate);
-                            editor.apply();
-                        }
-
-                    } catch(Exception e) {
-                        Log.e("RssService:",  e.getStackTrace().toString());
-
-                    } finally {
-                        mHandler.postDelayed(() -> new Thread(mRunnable).start(), 60000);
+                        // Channel aufbauen
+                        NotificationChannel channel = new NotificationChannel(
+                                CHANNEL_ID,
+                                CHANNEL_ID,
+                                NotificationManager.IMPORTANCE_LOW);
+                        mNotificationManager.createNotificationChannel(channel);
+                        mBuilder.setChannelId(CHANNEL_ID);
                     }
 
+                    mNotificationManager.notify(0, mBuilder.build());
+                    //Log.i("RssService", "Notify gemacht");
 
-            Log.d("RssService", "Ende");
+
+                    LastDate = LastPub;
+                    SharedPreferences.Editor editor = Objects.requireNonNull(settings).edit();
+                    editor.putLong(getString(R.string.app_settings_lastdate), LastDate);
+                    editor.apply();
+                }
+
+            } catch (Exception e) {
+                //Log.e("RssService:", "Fehler");
+                e.printStackTrace();
+
+            } finally {
+                mHandler.postDelayed(() -> new Thread(mRunnable).start(), 60000);
+            }
+
+
+            //Log.d("RssService", "Ende");
         }
     };
 
-  @Override
-  public IBinder onBind(Intent intent) {
-    return null;
-}
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         RSS_LINK = getString(R.string.app_rss);
 
         SharedPreferences settings;
-        settings =  getBaseContext().getSharedPreferences( getBaseContext().getString(R.string.app_settings),  getBaseContext().MODE_PRIVATE);
+        settings = getBaseContext().getSharedPreferences(getBaseContext().getString(R.string.app_settings), getBaseContext().MODE_PRIVATE);
 
         LastDate = System.currentTimeMillis();
-           if(settings != null)
-           {
-               Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
-               LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
-           }
+        if (settings != null) {
+            Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
+            LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
+        }
 
-        if(!Benachrichtigung) getBaseContext().stopService(new Intent( getBaseContext(), RssService.class));
+        if (!Benachrichtigung)
+            getBaseContext().stopService(new Intent(getBaseContext(), RssService.class));
 
         mHandler = new Handler();
         // delay for 15 sec.
         int delay = 15 * 1000;
         // repeat every 3600 sec.
-        int period = 3600 * 1000;
+        int period = 5 * 1000;
         mHandler.postDelayed(() -> new Thread(mRunnable).start(), period + delay);
 
 
@@ -204,8 +205,7 @@ public class RssService extends Service {
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         SharedPreferences settings = getSharedPreferences(getString(R.string.app_settings), MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putLong(getString(R.string.app_settings_lastdate), LastDate);
@@ -226,12 +226,12 @@ public class RssService extends Service {
     }
 
     private InputStream getInputStream(String link) {
-            try {
-                URL url = new URL(link);
-                return url.openConnection().getInputStream();
-            } catch (IOException e) {
-                return null;
-            }
+        try {
+            URL url = new URL(link);
+            return url.openConnection().getInputStream();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
 }

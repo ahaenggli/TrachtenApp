@@ -15,7 +15,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-    if(Objects.requireNonNull(intent.getAction()).equals(Intent.ACTION_BOOT_COMPLETED)) {
+        if (Objects.requireNonNull(intent.getAction()).equals(Intent.ACTION_BOOT_COMPLETED)) {
 
 
             boolean Benachrichtigung;
@@ -23,22 +23,18 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             SharedPreferences settings;
             settings = context.getSharedPreferences(context.getString(R.string.app_settings), Context.MODE_PRIVATE);
 
-            if(settings != null)
-            {
+            if (settings != null) {
 
                 Benachrichtigung = settings.getBoolean(context.getString(R.string.app_settings_benachrichtigung), true);
 
-                if(Benachrichtigung){
+                if (Benachrichtigung) {
                     context.stopService(new Intent(context, RssService.class));
                     context.startService(new Intent(context, RssService.class));
-                }
-                else    context.stopService(new Intent(context, RssService.class));
+                } else context.stopService(new Intent(context, RssService.class));
 
             }
 
-    }
-
-
+        }
 
 
     }
