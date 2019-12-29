@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebChromeClient;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             Benachrichtigung = settings.getBoolean(getString(R.string.app_settings_benachrichtigung), true);
             Ton = settings.getBoolean(getString(R.string.app_settings_ton), true);
             Vibration = settings.getBoolean(getString(R.string.app_settings_vibration), false);
-            Licht = settings.getBoolean(getString(R.string.app_settings_vibration), true);
+            Licht = settings.getBoolean(getString(R.string.app_settings_licht), true);
 
             RssServiceHandler();
         }

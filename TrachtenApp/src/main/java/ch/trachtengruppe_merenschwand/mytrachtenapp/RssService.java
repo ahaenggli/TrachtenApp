@@ -49,23 +49,6 @@ public class RssService extends Service {
     }
 */
 
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getBaseContext().getString(R.string.app_name);
-            String description = getBaseContext().getString(R.string.app_name);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-
     private final Runnable mRunnable = new Runnable() {
 
         @Override
@@ -147,17 +130,20 @@ public class RssService extends Service {
                             mBuilder.setContentText(android.text.Html.fromHtml(rssItems.get(1).getDescription()));
                             mBuilder.setContentIntent(pendingIntent);
 
-                            // evtl max
+
                             mBuilder.setPriority(Notification.PRIORITY_DEFAULT);
-                            // evtl weglassen
+
                             mBuilder.setStyle(bigText);
-                            // optional?
+
+
                             mBuilder.setWhen(LastPub);
                             mBuilder.setShowWhen(true);
                             mBuilder.setColor(Color.WHITE);
                             mBuilder.setAutoCancel(true);
 
                             if (Ton) mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);//noti.setDefaults(NotificationCompat.DEFAULT_SOUND);
+                            else mBuilder.setSound(null);
+
                             if (Vibration) mBuilder.setVibrate(new long[] { 500, 500});//noti.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
                             if (Licht) mBuilder.setLights(Color.WHITE, 2500, 2500);
 
@@ -167,10 +153,14 @@ public class RssService extends Service {
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                             {
+                                // Anzahl in App-Badge anzeigen
+                                // mBuilder.setNumber(1);
+
+                                // Channel aufbauen
                                 NotificationChannel channel = new NotificationChannel(
                                         CHANNEL_ID,
                                         CHANNEL_ID,
-                                        NotificationManager.IMPORTANCE_DEFAULT);
+                                        NotificationManager.IMPORTANCE_LOW);
                                 mNotificationManager.createNotificationChannel(channel);
                                 mBuilder.setChannelId(CHANNEL_ID);
                             }
