@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +33,6 @@ public class RssService extends Service {
     private Long LastDate;
 
     private boolean Benachrichtigung = false;
-    private boolean Ton = false;
-    private boolean Vibration = false;
-    private boolean Licht = false;
-
     private Handler mHandler;
 
     private String CHANNEL_ID = "TrachtenChannel";
@@ -70,9 +65,6 @@ public class RssService extends Service {
                         if(settings != null)
                         {
                             Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
-                            Ton = settings.getBoolean(getBaseContext().getString(R.string.app_settings_ton), true);
-                            Vibration = settings.getBoolean(getBaseContext().getString(R.string.app_settings_vibration), false);
-                            Licht = settings.getBoolean(getBaseContext().getString(R.string.app_settings_licht), true);
                             LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
                         }
 
@@ -103,8 +95,7 @@ public class RssService extends Service {
                         else LastPub = LastDate;
 
                         //Debug: führt dazu, dass bei jedem Timer onRun eine Notifcation kommt
-                        //if(Debug)
-                        LastDate = LastPub  -1;
+                        //if(Debug) LastDate = LastPub  -1;
 
                         if (LastDate < LastPub) {
 
@@ -140,13 +131,6 @@ public class RssService extends Service {
                             mBuilder.setShowWhen(true);
                             mBuilder.setColor(Color.WHITE);
                             mBuilder.setAutoCancel(true);
-
-                            if (Ton) mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);//noti.setDefaults(NotificationCompat.DEFAULT_SOUND);
-                            else mBuilder.setSound(null);
-
-                            if (Vibration) mBuilder.setVibrate(new long[] { 500, 500});//noti.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
-                            if (Licht) mBuilder.setLights(Color.WHITE, 2500, 2500);
-
 
                             mNotificationManager =
                                     (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -203,9 +187,6 @@ public class RssService extends Service {
            if(settings != null)
            {
                Benachrichtigung = settings.getBoolean(getBaseContext().getString(R.string.app_settings_benachrichtigung), true);
-               Ton = settings.getBoolean(getBaseContext().getString(R.string.app_settings_ton), true);
-               Vibration = settings.getBoolean(getBaseContext().getString(R.string.app_settings_vibration), false);
-               Licht = settings.getBoolean(getBaseContext().getString(R.string.app_settings_licht), true);
                LastDate = settings.getLong(getBaseContext().getString(R.string.app_settings_lastdate), LastDate);
            }
 
@@ -215,7 +196,7 @@ public class RssService extends Service {
         // delay for 15 sec.
         int delay = 15 * 1000;
         // repeat every 3600 sec.
-        int period = 15 * 1000;
+        int period = 3600 * 1000;
         mHandler.postDelayed(() -> new Thread(mRunnable).start(), period + delay);
 
 

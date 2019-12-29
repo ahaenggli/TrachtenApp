@@ -19,9 +19,6 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
 
             boolean Benachrichtigung;
-            boolean Ton;
-            boolean Vibration;
-            boolean Licht;
 
             SharedPreferences settings;
             settings = context.getSharedPreferences(context.getString(R.string.app_settings), Context.MODE_PRIVATE);
@@ -30,17 +27,10 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             {
 
                 Benachrichtigung = settings.getBoolean(context.getString(R.string.app_settings_benachrichtigung), true);
-                Ton = settings.getBoolean(context.getString(R.string.app_settings_ton), true);
-                Vibration = settings.getBoolean(context.getString(R.string.app_settings_vibration), false);
-                Licht = settings.getBoolean(context.getString(R.string.app_settings_licht), true);
 
                 if(Benachrichtigung){
                     context.stopService(new Intent(context, RssService.class));
-                    context.startService(new Intent(context, RssService.class)
-                            .putExtra("Ton", Ton)
-                            .putExtra("Vibration", Vibration)
-                            .putExtra("Licht", Licht)
-                    );
+                    context.startService(new Intent(context, RssService.class));
                 }
                 else    context.stopService(new Intent(context, RssService.class));
 

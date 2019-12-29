@@ -21,12 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private WebView mWebView;
 
     private boolean Benachrichtigung;
-    private boolean Ton;
-    private boolean Vibration;
-    private boolean Licht;
 
-
-    
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -70,10 +65,6 @@ public class MainActivity extends AppCompatActivity {
         if(settings != null)
         {
             Benachrichtigung = settings.getBoolean(getString(R.string.app_settings_benachrichtigung), true);
-            Ton = settings.getBoolean(getString(R.string.app_settings_ton), true);
-            Vibration = settings.getBoolean(getString(R.string.app_settings_vibration), false);
-            Licht = settings.getBoolean(getString(R.string.app_settings_licht), true);
-
             RssServiceHandler();
         }
 
@@ -118,29 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 RssServiceHandler();
             break;
 
-            case R.id.ton:
-                item.setChecked(!item.isChecked());
-                Ton = item.isChecked();
-                editor.putBoolean(getString(R.string.app_settings_ton), Ton);
-                editor.apply();
-                RssServiceHandler();
-            break;
 
-            case R.id.vibration:
-                item.setChecked(!item.isChecked());
-                Vibration = item.isChecked();
-                editor.putBoolean(getString(R.string.app_settings_vibration), Vibration);
-                editor.apply();
-                RssServiceHandler();
-            break;
-
-            case R.id.licht:
-                item.setChecked(!item.isChecked());
-                Licht = item.isChecked();
-                editor.putBoolean(getString(R.string.app_settings_licht), Licht);
-                editor.apply();
-                RssServiceHandler();
-                break;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -153,9 +122,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         menu.findItem(R.id.benachrichtigung).setChecked(Benachrichtigung);
-        menu.findItem(R.id.ton).setChecked(Ton);
-        menu.findItem(R.id.vibration).setChecked(Vibration);
-        menu.findItem(R.id.licht).setChecked(Licht);
 
         //menu.add("Guguus");
 
